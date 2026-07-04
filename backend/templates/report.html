@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Georgia, 'Times New Roman', serif; }
+  .page { width: 210mm; height: 297mm; position: relative; page-break-after: always; overflow: hidden; }
+  .page:last-child { page-break-after: auto; }
+
+  /* ── Page 1: cover ── */
+  #cover {
+    background: #14141c;
+    color: #f5f2e8;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  #cover .shape-circle {
+    position: absolute; top: -70px; left: -70px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: #e63946; opacity: .9;
+  }
+  #cover .shape-square {
+    position: absolute; bottom: -50px; right: -50px;
+    width: 220px; height: 220px; background: #ffb703;
+    transform: rotate(18deg); opacity: .9;
+  }
+  #cover .shape-triangle {
+    position: absolute; top: 40px; right: 60px;
+    width: 0; height: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+    border-bottom: 100px solid #2a9d8f;
+    opacity: .8;
+  }
+  #cover .eyebrow {
+    letter-spacing: 4px; text-transform: uppercase; font-size: 13px;
+    font-family: 'Trebuchet MS', sans-serif; color: #ffb703; margin-bottom: 24px; z-index: 1;
+  }
+  #cover h1 { font-size: 50px; font-weight: 700; line-height: 1.25; max-width: 75%; z-index: 1; margin: 0; }
+  #cover .brand {
+    position: absolute; bottom: 40px; font-family: 'Trebuchet MS', sans-serif;
+    font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: #cfcabf; z-index: 1;
+  }
+
+  /* ── Page 2: personal intro ── */
+  #intro {
+    background: #fffdf7;
+    padding: 70px 60px;
+    font-family: 'Trebuchet MS', sans-serif;
+    color: #14141c;
+  }
+  #intro .kicker { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: #999; margin-bottom: 10px; }
+  #intro h2 { font-family: Georgia, serif; font-size: 34px; margin: 0 0 6px; }
+  #intro .meta { font-size: 14px; color: #666; margin-bottom: 70px; }
+  #intro .quote-box {
+    border: 2px solid #14141c;
+    border-radius: 10px;
+    padding: 40px;
+    font-style: italic;
+    font-size: 21px;
+    line-height: 1.7;
+    position: relative;
+  }
+  #intro .quote-box::before {
+    content: '\201C';
+    position: absolute; top: -6px; left: 20px;
+    font-size: 80px; font-family: Georgia, serif; color: #ffb703;
+  }
+
+  /* ── Page 3: radar chart ── */
+  #chart-page {
+    background: #fffdf7;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #chart-page h2 { font-family: Georgia, serif; font-size: 28px; margin: 0 0 30px; color: #14141c; }
+  #chart-page canvas { max-width: 460px; max-height: 460px; }
+  .badges { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; justify-content: center; font-family: 'Trebuchet MS', sans-serif; }
+  .badge { padding: 10px 18px; border-radius: 24px; color: #fff; font-weight: bold; font-size: 13px; }
+  .badge.Openness { background: #2a9d8f; }
+  .badge.Conscientiousness { background: #e76f51; }
+  .badge.Extraversion { background: #f4a261; }
+  .badge.Agreeableness { background: #264653; }
+  .badge.Neuroticism { background: #e63946; }
+</style>
+</head>
+<body>
+
+<section class="page" id="cover">
+  <div class="shape-circle"></div>
+  <div class="shape-triangle"></div>
+  <div class="shape-square"></div>
+  <div class="eyebrow">Personality Science</div>
+  <h1>The Big Five<br/>Personality Report</h1>
+  <div class="brand">Free Big Five Assessment</div>
+</section>
+
+<section class="page" id="intro">
+  <div class="kicker">Prepared exclusively for</div>
+  <h2>{{FULL_NAME}}</h2>
+  <div class="meta">{{REPORT_DATE}}</div>
+  <div class="quote-box">{{TAGLINE}}</div>
+</section>
+
+<section class="page" id="chart-page">
+  <h2>Your Trait Profile</h2>
+  <canvas id="radar" width="460" height="460"></canvas>
+  <div class="badges" id="badges"></div>
+</section>
+
+<script src="./chart.umd.min.js"></script>
+<script>
+  var scores = {{SCORES_JSON}};
+  var labels = Object.keys(scores);
+  var data = Object.values(scores);
+
+  var ctx = document.getElementById('radar').getContext('2d');
+  new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Score',
+        data: data,
+        backgroundColor: 'rgba(38,70,83,0.25)',
+        borderColor: '#264653',
+        borderWidth: 2,
+        pointBackgroundColor: '#264653'
+      }]
+    },
+    options: {
+      animation: false,
+      responsive: false,
+      scales: { r: { min: 0, max: 100, ticks: { stepSize: 20, backdropColor: 'transparent' } } },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  var badgesEl = document.getElementById('badges');
+  Object.keys(scores).forEach(function (trait) {
+    var el = document.createElement('div');
+    el.className = 'badge ' + trait;
+    el.textContent = trait + ': ' + Math.round(scores[trait]);
+    badgesEl.appendChild(el);
+  });
+
+  window.__chartReady = true;
+</script>
+</body>
+</html>
