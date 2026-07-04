@@ -14,10 +14,10 @@ app.use(express.json());
 app.use('/api/questions', questionsRouter);
 app.use('/api/assessment', assessmentRouter);
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok', service: 'big5-assessment-api' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', service: 'innerlens-api' }));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`Big Five backend listening on http://localhost:${PORT}`);
+  console.log(`InnerLens backend listening on http://localhost:${PORT}`);
   startFollowUpScheduler();
 });

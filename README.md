@@ -1,4 +1,4 @@
-# Big Five Personality Assessment
+# InnerLens — Personality Assessment
 
 A free, self-hosted clone of the Big Five personality assessment funnel — 30-question
 quiz, automatic scoring, a generated PDF report, and delivery over email + WhatsApp.

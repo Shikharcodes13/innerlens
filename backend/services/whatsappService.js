@@ -34,9 +34,9 @@ async function sendDocumentMessage(toPhone, mediaId, fullName, config) {
       type: 'document',
       document: {
         id: mediaId,
-        filename: `BigFive_Report_${firstName}.pdf`,
+        filename: `InnerLens_Report_${firstName}.pdf`,
         caption:
-          `Hi ${firstName}, here's your Big Five Personality Report! ` +
+          `Hi ${firstName}, here's your InnerLens Personality Report! ` +
           `Reply STOP to unsubscribe.`,
       },
     },

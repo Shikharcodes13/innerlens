@@ -7,10 +7,11 @@ export default function LandingPage({ onStart }) {
           Understand yourself <em>in five dimensions,</em> not one label.
         </h1>
         <p className="lede">
-          The Big Five is the most widely validated model in personality psychology —
-          used in academic research for decades. Answer 30 short statements and
-          receive a personalized report mapping where you fall across Openness,
-          Conscientiousness, Extraversion, Agreeableness, and Neuroticism.
+          InnerLens is built on the Big Five — the most widely validated model in
+          personality psychology, used in academic research for decades. Answer 30
+          short statements and receive a personalized report mapping where you fall
+          across Openness, Conscientiousness, Extraversion, Agreeableness, and
+          Neuroticism.
         </p>
         <button className="btn-primary" onClick={onStart}>
           Get Started

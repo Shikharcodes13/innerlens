@@ -27,7 +27,7 @@ export default function ContactForm({ answers, onSubmitted }) {
         <span className="eyebrow">Almost There</span>
         <h2>Where should we send your report?</h2>
         <p>
-          Your personalized Big Five report will be delivered as a PDF to your
+          Your personalized InnerLens report will be delivered as a PDF to your
           email and WhatsApp within 5-10 minutes.
         </p>
 

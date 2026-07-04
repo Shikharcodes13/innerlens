@@ -26,7 +26,7 @@ async function generateReport({ fullName, scores, tagline }) {
 
   const uniqueId = uuidv4().slice(0, 8);
   const safeName = fullName.trim().replace(/[^a-zA-Z0-9]+/g, '_');
-  const fileName = `BigFive_Report_${safeName}_${uniqueId}.pdf`;
+  const fileName = `InnerLens_Report_${safeName}_${uniqueId}.pdf`;
   const filePath = path.join(REPORTS_DIR, fileName);
 
   const reportDate = new Date().toLocaleDateString('en-US', {

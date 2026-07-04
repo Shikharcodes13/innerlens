@@ -8,9 +8,9 @@ export default function CompletionScreen() {
         <span className="eyebrow">Assessment Complete!</span>
         <h2>Your report is being prepared.</h2>
         <p>
-          We're scoring your responses and generating your personalized Big Five
-          Personality Report now. It will land in your inbox and on WhatsApp within
-          the next 5-10 minutes.
+          We're scoring your responses and generating your personalized InnerLens
+          report now. It will land in your inbox and on WhatsApp within the next
+          5-10 minutes.
         </p>
 
         <div className="channel-row">

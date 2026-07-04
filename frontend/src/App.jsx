@@ -25,7 +25,7 @@ function App() {
   return (
     <div className="app-shell">
       <div className="brand-mark">
-        Big<span>Five</span>
+        Inner<span>Lens</span>
       </div>
 
       {step === STEPS.LANDING && <LandingPage onStart={() => setStep(STEPS.INTRO)} />}
