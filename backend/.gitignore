@@ -1,5 +1,7 @@
 node_modules/
-.env
+.env.example
 db/db.json
 reports/*.pdf
 *.log
+.env
+.cache/
