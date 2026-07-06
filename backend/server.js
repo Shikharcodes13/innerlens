@@ -39,7 +39,7 @@ app.get('/api/debug/smtp-check', (req, res) => {
     res.json({ result: 'TIMEOUT', ms: Date.now() - start });
   });
   socket.on('error', (err) => {
-    res.json({ result: 'ERROR', message: err.message, ms: Date.now() - start });
+    res.json({ result: 'ERROR', message: err.message, code: err.code, errno: err.errno, syscall: err.syscall, ms: Date.now() - start });
   });
 });
 
