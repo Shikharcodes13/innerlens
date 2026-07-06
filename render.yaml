@@ -11,14 +11,10 @@ services:
         value: 4000
       - key: PUPPETEER_CACHE_DIR
         value: /opt/render/project/src/backend/.cache/puppeteer
-      - key: SMTP_HOST
-        value: smtp.gmail.com
-      - key: SMTP_PORT
-        value: 587
-      - key: SMTP_USER
+      - key: RESEND_API_KEY
         sync: false
-      - key: SMTP_PASS
-        sync: false
+      - key: RESEND_FROM_EMAIL
+        value: InnerLens <onboarding@resend.dev>
       - key: TWILIO_ACCOUNT_SID
         sync: false
       - key: TWILIO_AUTH_TOKEN

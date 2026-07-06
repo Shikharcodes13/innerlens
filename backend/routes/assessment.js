@@ -40,19 +40,28 @@ router.post('/submit', async (req, res) => {
   }
 
   // Everything below is best-effort: log failures, never fail the response once the PDF exists.
-  try {
-    await sendReportEmail({ toEmail: email, fullName: name, pdfPath: filePath, pdfFileName: fileName, lang });
+  // Run concurrently — they're independent of each other, and sequential awaits here previously
+  // meant one slow/hung delivery channel (e.g. email) added its full latency to every response.
+  const [emailOutcome, whatsappOutcome, dripOutcome] = await Promise.allSettled([
+    sendReportEmail({ toEmail: email, fullName: name, pdfPath: filePath, pdfFileName: fileName, lang }),
+    sendReportWhatsApp({ toPhone: phone, fullName: name, pdfFileName: fileName, lang }),
+    sendDripVideo({ toPhone: phone, fullName: name, day: 1 }),
+  ]);
+
+  if (emailOutcome.status === 'fulfilled') {
     console.log(`[assessment] Email sent to ${email}`);
-  } catch (err) {
-    console.error('[assessment] Email delivery failed:', err.message);
+  } else {
+    console.error('[assessment] Email delivery failed:', emailOutcome.reason.message);
   }
 
-  const whatsappResult = await sendReportWhatsApp({ toPhone: phone, fullName: name, pdfFileName: fileName, lang });
+  // whatsappOutcome/dripOutcome always fulfill — sendReportWhatsApp/sendDripVideo never throw.
+  const whatsappResult = whatsappOutcome.value;
+  const dripDay1Result = dripOutcome.value;
+
   if (whatsappResult.sent) {
     console.log(`[assessment] WhatsApp report sent to ${phone}`);
   }
 
-  const dripDay1Result = await sendDripVideo({ toPhone: phone, fullName: name, day: 1 });
   if (dripDay1Result.sent) {
     console.log(`[assessment] WhatsApp day 1 drip video sent to ${phone}`);
   }
