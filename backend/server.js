@@ -22,6 +22,27 @@ app.use('/api/whatsapp', whatsappWebhookRouter);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', service: 'innerlens-api' }));
 
+// TEMPORARY diagnostic route — checks raw TCP connectivity to Gmail's SMTP port from
+// this host, since Render's free tier has no shell access to test this directly.
+// Remove once the email connection-timeout issue is diagnosed.
+app.get('/api/debug/smtp-check', (req, res) => {
+  const net = require('net');
+  const start = Date.now();
+  const socket = net.createConnection(587, 'smtp.gmail.com');
+  socket.setTimeout(10000);
+  socket.on('connect', () => {
+    socket.end();
+    res.json({ result: 'CONNECTED', ms: Date.now() - start });
+  });
+  socket.on('timeout', () => {
+    socket.destroy();
+    res.json({ result: 'TIMEOUT', ms: Date.now() - start });
+  });
+  socket.on('error', (err) => {
+    res.json({ result: 'ERROR', message: err.message, ms: Date.now() - start });
+  });
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`InnerLens backend listening on http://localhost:${PORT}`);
