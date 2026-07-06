@@ -5,7 +5,7 @@ services:
     rootDir: backend
     plan: free
     buildCommand: npm install
-    startCommand: rm -rf $PUPPETEER_CACHE_DIR && npx puppeteer browsers install chrome && npm start
+    startCommand: rm -rf $PUPPETEER_CACHE_DIR && npx puppeteer browsers install chrome --path=$PUPPETEER_CACHE_DIR && echo "--- verifying install ---" && find $PUPPETEER_CACHE_DIR -type f && npm start
     envVars:
       - key: PORT
         value: 4000
