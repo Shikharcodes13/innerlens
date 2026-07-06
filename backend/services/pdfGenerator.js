@@ -11,6 +11,21 @@ const TEMPLATE_PATH = path.join(__dirname, '../templates/report.html');
 const CHARTJS_PATH = path.join(path.dirname(require.resolve('chart.js')), 'chart.umd.js');
 const REPORTS_DIR = path.join(__dirname, '../reports');
 
+// Embedded (not system-installed) Devanagari webfont — relying on the host to have a
+// Devanagari-capable font installed proved unreliable across environments (behaved
+// differently on local Windows Chrome vs Render's @sparticuz/chromium on Linux, with
+// some elements rendering as tofu boxes on the latter). A base64-embedded @font-face
+// removes the host font availability from the equation entirely.
+const DEVANAGARI_FONT_DIR = path.dirname(
+  require.resolve('@fontsource/noto-sans-devanagari/files/noto-sans-devanagari-devanagari-400-normal.woff2')
+);
+const DEVANAGARI_FONT_REGULAR_BASE64 = fs
+  .readFileSync(path.join(DEVANAGARI_FONT_DIR, 'noto-sans-devanagari-devanagari-400-normal.woff2'))
+  .toString('base64');
+const DEVANAGARI_FONT_BOLD_BASE64 = fs
+  .readFileSync(path.join(DEVANAGARI_FONT_DIR, 'noto-sans-devanagari-devanagari-700-normal.woff2'))
+  .toString('base64');
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -72,6 +87,8 @@ async function generateReport({ fullName, scores, tagline, lang }) {
   html = html
     .replace('{{HTML_LANG}}', labels.htmlLang)
     .replace('{{BODY_LANG_CLASS}}', `lang-${labels.htmlLang}`)
+    .replace('{{DEVANAGARI_FONT_REGULAR_BASE64}}', DEVANAGARI_FONT_REGULAR_BASE64)
+    .replace('{{DEVANAGARI_FONT_BOLD_BASE64}}', DEVANAGARI_FONT_BOLD_BASE64)
     .replace('{{EYEBROW}}', escapeHtml(labels.eyebrow))
     .replace('{{TITLE_HTML}}', labels.titleHtml)
     .replace('{{BRAND}}', escapeHtml(labels.brand))
