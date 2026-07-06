@@ -28,12 +28,14 @@ function escapeHtml(str) {
 // regular "puppeteer" package's own bundled Chrome, since @sparticuz/chromium is Linux-only.
 async function launchBrowser() {
   if (process.env.RENDER) {
-    const chromium = require('@sparticuz/chromium');
+    // @sparticuz/chromium v3+ ships as an ESM package — under CommonJS require(),
+    // the actual args/executablePath/headless API sits under .default.
+    const chromium = require('@sparticuz/chromium').default;
     const puppeteerCore = require('puppeteer-core');
     return puppeteerCore.launch({
-      args: chromium.args,
+      args: await puppeteerCore.defaultArgs({ args: chromium.args, headless: 'shell' }),
       executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
+      headless: 'shell',
     });
   }
 
