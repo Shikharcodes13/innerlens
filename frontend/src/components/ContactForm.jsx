@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { submitAssessment } from '../api/client';
 
-export default function ContactForm({ answers, onSubmitted }) {
+export default function ContactForm({ answers, lang, onSubmitted }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -13,7 +13,7 @@ export default function ContactForm({ answers, onSubmitted }) {
     setError(null);
     setSubmitting(true);
     try {
-      await submitAssessment({ name, email, phone, answers });
+      await submitAssessment({ name, email, phone, answers, lang });
       onSubmitted();
     } catch (err) {
       setError(err.message);

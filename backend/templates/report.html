@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{HTML_LANG}}">
 <head>
 <meta charset="utf-8" />
 <style>
   @page { size: A4; margin: 0; }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: Georgia, 'Times New Roman', serif; }
+  body { margin: 0; font-family: Georgia, 'Times New Roman', 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', serif; }
   .page { width: 210mm; height: 297mm; position: relative; page-break-after: always; overflow: hidden; }
   .page:last-child { page-break-after: auto; }
 
@@ -39,11 +39,11 @@
   }
   #cover .eyebrow {
     letter-spacing: 4px; text-transform: uppercase; font-size: 13px;
-    font-family: 'Trebuchet MS', sans-serif; color: #ffb703; margin-bottom: 24px; z-index: 1;
+    font-family: 'Trebuchet MS', 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', sans-serif; color: #ffb703; margin-bottom: 24px; z-index: 1;
   }
   #cover h1 { font-size: 50px; font-weight: 700; line-height: 1.25; max-width: 75%; z-index: 1; margin: 0; }
   #cover .brand {
-    position: absolute; bottom: 40px; font-family: 'Trebuchet MS', sans-serif;
+    position: absolute; bottom: 40px; font-family: 'Trebuchet MS', 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', sans-serif;
     font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: #cfcabf; z-index: 1;
   }
 
@@ -51,7 +51,7 @@
   #intro {
     background: #fffdf7;
     padding: 70px 60px;
-    font-family: 'Trebuchet MS', sans-serif;
+    font-family: 'Trebuchet MS', 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', sans-serif;
     color: #14141c;
   }
   #intro .kicker { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: #999; margin-bottom: 10px; }
@@ -80,37 +80,52 @@
     flex-direction: column;
     align-items: center;
   }
-  #chart-page h2 { font-family: Georgia, serif; font-size: 28px; margin: 0 0 30px; color: #14141c; }
+  #chart-page h2 { font-family: Georgia, 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', serif; font-size: 28px; margin: 0 0 30px; color: #14141c; }
   #chart-page canvas { max-width: 460px; max-height: 460px; }
-  .badges { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; justify-content: center; font-family: 'Trebuchet MS', sans-serif; }
+  .badges { display: flex; gap: 14px; margin-top: 30px; flex-wrap: wrap; justify-content: center; font-family: 'Trebuchet MS', 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', sans-serif; }
   .badge { padding: 10px 18px; border-radius: 24px; color: #fff; font-weight: bold; font-size: 13px; }
   .badge.Openness { background: #2a9d8f; }
   .badge.Conscientiousness { background: #e76f51; }
   .badge.Extraversion { background: #f4a261; }
   .badge.Agreeableness { background: #264653; }
   .badge.Neuroticism { background: #e63946; }
+
+  /* 'Trebuchet MS' has stray/partial Devanagari glyph coverage on some systems, so Chromium's
+     per-character font fallback ends up drawing a single conjunct cluster from two different
+     fonts and visibly breaks it apart. Drop it (and the Latin-oriented letter-spacing/uppercase
+     styling built for it) for Hindi, so these elements go straight to a Devanagari-native font.
+     !important is needed here because the base rules (#cover .eyebrow, #cover .brand,
+     #intro .kicker) use ID selectors, which would otherwise outrank this override. */
+  body.lang-hi .eyebrow,
+  body.lang-hi .brand,
+  body.lang-hi .kicker,
+  body.lang-hi .badges {
+    font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', sans-serif !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+  }
 </style>
 </head>
-<body>
+<body class="{{BODY_LANG_CLASS}}">
 
 <section class="page" id="cover">
   <div class="shape-circle"></div>
   <div class="shape-triangle"></div>
   <div class="shape-square"></div>
-  <div class="eyebrow">Personality Science</div>
-  <h1>InnerLens<br/>Personality Report</h1>
-  <div class="brand">Free InnerLens Assessment</div>
+  <div class="eyebrow">{{EYEBROW}}</div>
+  <h1>{{TITLE_HTML}}</h1>
+  <div class="brand">{{BRAND}}</div>
 </section>
 
 <section class="page" id="intro">
-  <div class="kicker">Prepared exclusively for</div>
+  <div class="kicker">{{PREPARED_FOR}}</div>
   <h2>{{FULL_NAME}}</h2>
   <div class="meta">{{REPORT_DATE}}</div>
   <div class="quote-box">{{TAGLINE}}</div>
 </section>
 
 <section class="page" id="chart-page">
-  <h2>Your Trait Profile</h2>
+  <h2>{{TRAIT_PROFILE}}</h2>
   <canvas id="radar" width="460" height="460"></canvas>
   <div class="badges" id="badges"></div>
 </section>
@@ -118,16 +133,18 @@
 <script src="./chart.umd.min.js"></script>
 <script>
   var scores = {{SCORES_JSON}};
-  var labels = Object.keys(scores);
-  var data = Object.values(scores);
+  var traitLabels = {{TRAIT_LABELS_JSON}};
+  var traits = Object.keys(scores);
+  var data = traits.map(function (t) { return scores[t]; });
+  var displayLabels = traits.map(function (t) { return traitLabels[t] || t; });
 
   var ctx = document.getElementById('radar').getContext('2d');
   new Chart(ctx, {
     type: 'radar',
     data: {
-      labels: labels,
+      labels: displayLabels,
       datasets: [{
-        label: 'Score',
+        label: '{{SCORE_LABEL}}',
         data: data,
         backgroundColor: 'rgba(38,70,83,0.25)',
         borderColor: '#264653',
@@ -144,10 +161,10 @@
   });
 
   var badgesEl = document.getElementById('badges');
-  Object.keys(scores).forEach(function (trait) {
+  traits.forEach(function (trait) {
     var el = document.createElement('div');
     el.className = 'badge ' + trait;
-    el.textContent = trait + ': ' + Math.round(scores[trait]);
+    el.textContent = (traitLabels[trait] || trait) + ': ' + Math.round(scores[trait]);
     badgesEl.appendChild(el);
   });
 

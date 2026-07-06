@@ -16,9 +16,11 @@ const STEPS = {
 function App() {
   const [step, setStep] = useState(STEPS.LANDING);
   const [answers, setAnswers] = useState([]);
+  const [lang, setLang] = useState('en');
 
-  function handleQuizComplete(finalAnswers) {
+  function handleQuizComplete(finalAnswers, finalLang) {
     setAnswers(finalAnswers);
+    setLang(finalLang);
     setStep(STEPS.CONTACT);
   }
 
@@ -32,7 +34,7 @@ function App() {
       {step === STEPS.INTRO && <IntroCard onReady={() => setStep(STEPS.QUIZ)} />}
       {step === STEPS.QUIZ && <Quiz onComplete={handleQuizComplete} />}
       {step === STEPS.CONTACT && (
-        <ContactForm answers={answers} onSubmitted={() => setStep(STEPS.COMPLETE)} />
+        <ContactForm answers={answers} lang={lang} onSubmitted={() => setStep(STEPS.COMPLETE)} />
       )}
       {step === STEPS.COMPLETE && <CompletionScreen />}
     </div>

@@ -17,9 +17,15 @@ services:
         sync: false
       - key: SMTP_PASS
         sync: false
-      - key: WHATSAPP_TOKEN
+      - key: TWILIO_ACCOUNT_SID
         sync: false
-      - key: WHATSAPP_PHONE_NUMBER_ID
+      - key: TWILIO_AUTH_TOKEN
         sync: false
+      - key: TWILIO_WHATSAPP_FROM
+        sync: false
+      - key: WHATSAPP_REPORT_CONTENT_SID
+        sync: false
+      - key: BACKEND_PUBLIC_URL
+        value: https://innerlens-api.onrender.com
       - key: APP_PUBLIC_URL
         value: https://innerlens-assessment.netlify.app

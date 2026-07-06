@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const { resolveLang, EMAIL_COPY } = require('../utils/i18n');
 
 function buildTransporter() {
   return nodemailer.createTransport({
@@ -16,9 +17,9 @@ function isConfigured() {
   return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
-// sendReportEmail({ toEmail, fullName, pdfPath, pdfFileName }) -> Promise<void>
+// sendReportEmail({ toEmail, fullName, pdfPath, pdfFileName, lang }) -> Promise<void>
 // Caller treats this as best-effort and wraps it in try/catch.
-async function sendReportEmail({ toEmail, fullName, pdfPath, pdfFileName }) {
+async function sendReportEmail({ toEmail, fullName, pdfPath, pdfFileName, lang }) {
   if (!isConfigured()) {
     throw new Error('SMTP_USER/SMTP_PASS not configured — skipping email delivery.');
   }
@@ -26,40 +27,32 @@ async function sendReportEmail({ toEmail, fullName, pdfPath, pdfFileName }) {
   const transporter = buildTransporter();
   const firstName = fullName.trim().split(' ')[0];
   const publicUrl = process.env.APP_PUBLIC_URL || 'http://localhost:5173';
+  const copy = EMAIL_COPY[resolveLang(lang)];
 
   await transporter.sendMail({
     from: `"InnerLens" <${process.env.SMTP_USER}>`,
     to: toEmail,
-    subject: `${firstName}, your InnerLens report is here`,
-    text:
-      `Hi ${firstName},\n\n` +
-      `Your personalized InnerLens report is attached as a PDF.\n\n` +
-      `Enjoyed it? Share it with a friend and have them take the free assessment too: ${publicUrl}\n\n` +
-      `— The InnerLens Team`,
+    subject: copy.reportSubject(firstName),
+    text: copy.reportBody(firstName, publicUrl),
     attachments: [{ filename: pdfFileName, path: pdfPath }],
   });
 }
 
-// sendFollowUpEmail({ toEmail, fullName }) -> Promise<void>
-async function sendFollowUpEmail({ toEmail, fullName }) {
+// sendFollowUpEmail({ toEmail, fullName, lang }) -> Promise<void>
+async function sendFollowUpEmail({ toEmail, fullName, lang }) {
   if (!isConfigured()) {
     throw new Error('SMTP_USER/SMTP_PASS not configured — skipping follow-up email.');
   }
 
   const transporter = buildTransporter();
   const firstName = fullName.trim().split(' ')[0];
+  const copy = EMAIL_COPY[resolveLang(lang)];
 
   await transporter.sendMail({
     from: `"InnerLens" <${process.env.SMTP_USER}>`,
     to: toEmail,
-    subject: `${firstName}, one thing most people miss in their report`,
-    text:
-      `Hi ${firstName},\n\n` +
-      `Hope you had a chance to look over your InnerLens report. Most people skim the radar chart ` +
-      `and skip the part that matters most — how your lowest-scoring trait shapes your blind spots ` +
-      `just as much as your highest one shapes your strengths.\n\n` +
-      `Worth a second look when you get a moment.\n\n` +
-      `— The InnerLens Team`,
+    subject: copy.followUpSubject(firstName),
+    text: copy.followUpBody(firstName),
   });
 }
 

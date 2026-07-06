@@ -336,6 +336,30 @@ button {
   padding: 6rem 1.5rem 3rem;
 }
 
+.lang-toggle {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1.1rem;
+}
+
+.lang-toggle-option {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-faint);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lang-toggle-option.active {
+  border-color: var(--accent-dark);
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+
 .quiz-progress-track {
   width: 100%;
   max-width: 620px;

@@ -15,7 +15,7 @@ function startFollowUpScheduler() {
 
     for (const submission of pending) {
       try {
-        await sendFollowUpEmail({ toEmail: submission.email, fullName: submission.name });
+        await sendFollowUpEmail({ toEmail: submission.email, fullName: submission.name, lang: submission.lang });
         await markFollowUpSent(submission.id);
         console.log(`[followup] Sent follow-up to ${submission.email}`);
       } catch (err) {

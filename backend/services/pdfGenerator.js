@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
 const { v4: uuidv4 } = require('uuid');
+const { resolveLang, TRAIT_LABELS, REPORT_LABELS } = require('../utils/i18n');
 
 const TEMPLATE_PATH = path.join(__dirname, '../templates/report.html');
 // chart.js's package.json "exports" map only allows requiring "." / "./auto" / "./helpers",
@@ -20,16 +21,20 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
-// generateReport({ fullName, scores, tagline }) -> Promise<{ filePath, fileName, uniqueId }>
-async function generateReport({ fullName, scores, tagline }) {
+// generateReport({ fullName, scores, tagline, lang }) -> Promise<{ filePath, fileName, uniqueId }>
+async function generateReport({ fullName, scores, tagline, lang }) {
   fs.mkdirSync(REPORTS_DIR, { recursive: true });
+
+  const resolvedLang = resolveLang(lang);
+  const labels = REPORT_LABELS[resolvedLang];
+  const traitLabels = TRAIT_LABELS[resolvedLang];
 
   const uniqueId = uuidv4().slice(0, 8);
   const safeName = fullName.trim().replace(/[^a-zA-Z0-9]+/g, '_');
   const fileName = `InnerLens_Report_${safeName}_${uniqueId}.pdf`;
   const filePath = path.join(REPORTS_DIR, fileName);
 
-  const reportDate = new Date().toLocaleDateString('en-US', {
+  const reportDate = new Date().toLocaleDateString(labels.dateLocale, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -39,6 +44,15 @@ async function generateReport({ fullName, scores, tagline }) {
   const chartjsSource = fs.readFileSync(CHARTJS_PATH, 'utf-8');
 
   html = html
+    .replace('{{HTML_LANG}}', labels.htmlLang)
+    .replace('{{BODY_LANG_CLASS}}', `lang-${labels.htmlLang}`)
+    .replace('{{EYEBROW}}', escapeHtml(labels.eyebrow))
+    .replace('{{TITLE_HTML}}', labels.titleHtml)
+    .replace('{{BRAND}}', escapeHtml(labels.brand))
+    .replace('{{PREPARED_FOR}}', escapeHtml(labels.preparedFor))
+    .replace('{{TRAIT_PROFILE}}', escapeHtml(labels.traitProfile))
+    .replace('{{SCORE_LABEL}}', escapeHtml(labels.scoreLabel))
+    .replace('{{TRAIT_LABELS_JSON}}', JSON.stringify(traitLabels))
     .replace('{{FULL_NAME}}', escapeHtml(fullName))
     .replace('{{REPORT_DATE}}', escapeHtml(reportDate))
     .replace('{{TAGLINE}}', escapeHtml(tagline))
