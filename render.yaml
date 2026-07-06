@@ -4,8 +4,8 @@ services:
     runtime: node
     rootDir: backend
     plan: free
-    buildCommand: npm install && npx puppeteer browsers install chrome
-    startCommand: npm start
+    buildCommand: npm install
+    startCommand: npx puppeteer browsers install chrome && npm start
     envVars:
       - key: PORT
         value: 4000
