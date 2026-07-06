@@ -5,12 +5,12 @@ services:
     rootDir: backend
     plan: free
     buildCommand: npm install
-    startCommand: rm -rf $PUPPETEER_CACHE_DIR && npx puppeteer browsers install chrome --path=$PUPPETEER_CACHE_DIR && echo "--- verifying install ---" && find $PUPPETEER_CACHE_DIR -type f && npm start
+    startCommand: npm start
     envVars:
       - key: PORT
         value: 4000
-      - key: PUPPETEER_CACHE_DIR
-        value: /opt/render/project/src/backend/.cache/puppeteer
+      - key: PUPPETEER_SKIP_DOWNLOAD
+        value: "true"
       - key: RESEND_API_KEY
         sync: false
       - key: RESEND_FROM_EMAIL

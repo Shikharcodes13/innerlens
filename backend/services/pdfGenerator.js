@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
 const { v4: uuidv4 } = require('uuid');
 const { resolveLang, TRAIT_LABELS, REPORT_LABELS } = require('../utils/i18n');
 
@@ -19,6 +18,31 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+// On Render (process.env.RENDER is set automatically on all Render services), the full
+// Puppeteer-bundled Chrome download (~400-500MB extracted) doesn't reliably fit in the
+// free tier's disk space — installs were getting silently truncated mid-extraction.
+// @sparticuz/chromium ships a much smaller (~65MB), purpose-built binary directly inside
+// its npm package, with no separate download/extraction step. Local dev keeps using the
+// regular "puppeteer" package's own bundled Chrome, since @sparticuz/chromium is Linux-only.
+async function launchBrowser() {
+  if (process.env.RENDER) {
+    const chromium = require('@sparticuz/chromium');
+    const puppeteerCore = require('puppeteer-core');
+    return puppeteerCore.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+  }
+
+  const puppeteer = require('puppeteer');
+  // Extra flags needed for headless Chromium to run in constrained/containerized hosts.
+  return puppeteer.launch({
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+  });
 }
 
 // generateReport({ fullName, scores, tagline, lang }) -> Promise<{ filePath, fileName, uniqueId }>
@@ -59,12 +83,7 @@ async function generateReport({ fullName, scores, tagline, lang }) {
     .replace('{{SCORES_JSON}}', JSON.stringify(scores))
     .replace('<script src="./chart.umd.min.js"></script>', `<script>${chartjsSource}</script>`);
 
-  // Extra flags needed for headless Chromium to run in constrained/containerized hosts
-  // like Render's free tier (no sandbox namespaces, limited /dev/shm).
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-  });
+  const browser = await launchBrowser();
   try {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'networkidle0' });
